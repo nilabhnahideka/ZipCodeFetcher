@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zip Code Radius Finder</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Montserrat:wght@500;600&display=swap');
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #F1F1F1;
+            color: #3A3A3A;
+            padding: 5px;
+            margin: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #D6AD53;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+        }
+
+        h2 {
+            color: #A58F6E;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            border: 2px solid #D6AD53;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        label {
+            color: #3A3A3A;
+            margin-bottom: 5px;
+            display: block;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 2px;
+            font-size: small;
+        }
+
+        button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 10px;
+            font-size: small;
+            background-color: #D6AD53;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.05px;
+        }
+
+        button:hover {
+            background-color: #fff;
+            color: #D6AD53;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.05px;
+            border-color: #D6AD53;
+            border-width: 2px;
+        }
+
+        #results {
+            display: none;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #3A3A3A;
+            background-color: #fff;
+            border: 1px solid #5d432c;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            margin: 20px auto 0;
+        }
+
+        #results p {
+            margin: 0;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <img src="https://erdbaron.com/wp-content/uploads/2021/02/Erdbaron.svg" alt="Erdbaron Logo" width="150" height="50" class="logo">
+            <h2>Find Zip Codes within Radius</h2>
+            <form id="radiusForm">
+                <label for="zipCode">Zip Code:</label>
+                <input type="text" id="zipCode" name="zipCode" required>
+                <label for="radius">Radius (km):</label>
+                <input type="number" id="radius" name="radius" required>
+                <button type="submit">Find Zip Codes</button>
+            </form>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('radiusForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const zipCode = document.getElementById('zipCode').value;
+            const radius = document.getElementById('radius').value;
+
+            fetchZipCodes(zipCode, radius);
+        });
+
+        function fetchZipCodes(zipCode, radius) {
+            const apiKey = '0343ddc0-0aa9-4eb4-8560-31adbe3c2fe1';
+            const url = `https://api.mapsly.com/v1/a/135/button/run/plz?async=0&apikey=${apiKey}&plz=${zipCode}&distance=${radius}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // Log full API response to check the structure
+                    if (Array.isArray(data)) {
+                        displayResults(data);
+                    } else {
+                        console.error('Unexpected API response structure');
+                        displayResults([], 'No zip codes found within the specified radius.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    displayResults([], 'An error occurred while fetching data.');
+                });
+        }
+
+        function displayResults(zipCodes, message = '') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block'; // Show the results section
+
+            if (zipCodes && zipCodes.length > 0) {
+                const zipCodesStr = zipCodes.join(', ');
+                resultsDiv.innerHTML = `<h3>Zip Codes within Radius:</h3><p>${zipCodesStr}</p>`;
+            } else {
+                resultsDiv.innerHTML = `<h3>Zip Codes within Radius:</h3><p>${message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
